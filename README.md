@@ -1,4 +1,6 @@
-# saga-flow-fetch-api
+# saga-flow-fetch-api 
+[![Build Status](https://travis-ci.org/phakpoom/saga-flow-fetch-api.svg?branch=master)](https://travis-ci.org/phakpoom/saga-flow-fetch-api)
+
   Generate saga flow for fetching api
 
 ## CLI Usage
