@@ -1,5 +1,5 @@
-# react-native-core
-  A starter react native project.
+# saga-flow-fetch-api
+  Generate saga flow for fetching api
 
 ## CLI Usage
 `$ node node_modules/react-native-core/bin/cli --help`
