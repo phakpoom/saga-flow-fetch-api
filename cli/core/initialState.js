@@ -44,6 +44,11 @@ function add({feature, name, type, withReducer}) {
         ));
     }
 
+    // must seperate from above for ast updated before sort.
+    refactor.updateFile(targetPath, ast => [].concat(
+        refactor.sortImport(ast),
+    ));
+
     refactor.success(`InitialState: "${stateKeyName}" created in "${targetPath}"`);
 }
 

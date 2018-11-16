@@ -1,5 +1,5 @@
-import {combineReducers} from 'redux';
 import reduceReducers from 'reduce-reducers';
+import { combineReducers } from 'redux';
 import pageReducer from '../features/page/redux/reducer';
 import fooFeatureReducer from '../features/foo-feature/redux/reducer';
 

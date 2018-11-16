@@ -45,6 +45,10 @@ function add({feature, name, type, withReducer}) {
     refactor.updateFile(targetPath, ast => [].concat(
         refactor.addImportFrom(ast, `${CONSTANTS.PACKAGE_NAME}/api/${type}/action`, '', [constCreator])
     ));
+    // must seperate from above for ast updated before sort.
+    refactor.updateFile(targetPath, ast => [].concat(
+        refactor.sortImport(ast),
+    ));
 }
 
 function remove({feature, name}) {

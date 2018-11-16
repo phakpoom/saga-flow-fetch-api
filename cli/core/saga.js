@@ -72,6 +72,11 @@ function add({feature, name, type, withSaga}) {
         ));
     }
 
+    // must seperate from above for ast updated before sort.
+    refactor.updateFile(targetPath, ast => [].concat(
+        refactor.sortImport(ast),
+    ));
+
     refactor.success(`Saga: "${sagaName}" created in "${targetPath}"`);
 }
 
