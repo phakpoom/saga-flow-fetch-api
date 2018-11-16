@@ -34,6 +34,10 @@ function linkReducer({feature, name, withSaga}) {
         refactor.addImportFrom(ast, `./reducers/${_.snakeCase(withSaga)}`, '', [reducerName]),
         refactor.addToArray(ast, 'reducers', reducerName)
     ));
+    // must seperate from above for ast updated before sort.
+    refactor.updateFile(targetPath, ast => [].concat(
+        refactor.sortImport(ast),
+    ));
 
     refactor.success(`Reducer: "${reducerName}" linked in "${targetPath}"`);
 }
@@ -63,11 +67,19 @@ function linkFeature(feature) {
         refactor.addImportFrom(ast, `../features/${makeFeatureFolderName(feature)}/redux/reducer`, reducerEntryName),
         refactor.addObjectProperty(ast, 'featureReducers', _.camelCase(feature), reducerEntryName),
     ));
+    // must seperate from above for ast updated before sort.
+    refactor.updateFile(commonFolder + '/rootReducer.js', ast => [].concat(
+        refactor.sortImport(ast),
+    ));
 
     const sagaEntryName = `${_.camelCase(feature)}Sagas`;
     refactor.updateFile(commonFolder + '/rootSaga.js', ast => [].concat(
         refactor.addImportFrom(ast, `../features/${makeFeatureFolderName(feature)}/redux/sagas`, `* as ${sagaEntryName}`),
         refactor.addToArray(ast, 'featureSagas', sagaEntryName),
+    ));
+    // must seperate from above for ast updated before sort.
+    refactor.updateFile(commonFolder + '/rootSaga.js', ast => [].concat(
+        refactor.sortImport(ast),
     ));
 
     refactor.success(`Feature: "${feature}" linked`);

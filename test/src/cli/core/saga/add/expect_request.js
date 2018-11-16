@@ -1,5 +1,5 @@
-import { call, takeLatest } from 'redux-saga/effects';
 import { doRequest } from 'react-native-core/api/request/saga';
+import { call, takeLatest } from 'redux-saga/effects';
 import { GET_PAGE_BY_ID } from '../constants';
 import { getPageById } from '../actions';
 

@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const traverse = require('babel-traverse').default;
 const generate = require('babel-generator').default;
@@ -69,8 +68,8 @@ function addImportFrom(ast, moduleSource, defaultImport, namedImport, namespaceI
             if (!node.specifiers || !node.source || node.source.value !== moduleSource) return;
             sourceExisted = true;
             let newNames = [];
-            const alreadyHaveDefaultImport = !!_.find(node.specifiers, { type: 'ImportDefaultSpecifier' });
-            const alreadyHaveNamespaceImport = !!_.find(node.specifiers, { type: 'ImportNamespaceSpecifier' });
+            const alreadyHaveDefaultImport = !!_.find(node.specifiers, {type: 'ImportDefaultSpecifier'});
+            const alreadyHaveNamespaceImport = !!_.find(node.specifiers, {type: 'ImportNamespaceSpecifier'});
             if (defaultImport && !alreadyHaveDefaultImport) newNames.push(defaultImport);
             if (namespaceImport && !alreadyHaveNamespaceImport) newNames.push(namespaceImport);
 
@@ -93,7 +92,7 @@ function addImportFrom(ast, moduleSource, defaultImport, namedImport, namespaceI
                     }
                 });
 
-                const newNode = Object.assign({}, node, { specifiers: newSpecifiers });
+                const newNode = Object.assign({}, node, {specifiers: newSpecifiers});
                 let newCode = generate(newNode, babelGeneratorOptions).code;
 
                 if (multilines) {
@@ -189,7 +188,7 @@ function addExportFrom(ast, moduleSource, defaultExport, namedExport) {
                     }
                 });
 
-                const newNode = Object.assign({}, node, { specifiers: newSpecifiers });
+                const newNode = Object.assign({}, node, {specifiers: newSpecifiers});
                 const newCode = generate(newNode, babelGeneratorOptions).code;
                 changes.push({
                     start: node.start,
@@ -262,7 +261,7 @@ function removeImportSpecifier(ast, name) {
                 });
             } else if (newSpecifiers.length !== node.specifiers.length) {
                 // remove the specifier import
-                const newNode = Object.assign({}, node, { specifiers: newSpecifiers });
+                const newNode = Object.assign({}, node, {specifiers: newSpecifiers});
                 let newCode = generate(newNode, {}).code;
                 if (multilines) newCode = formatMultilineImport(newCode);
                 changes.push({
@@ -309,7 +308,7 @@ function removeExportSpecifier(ast, name) {
                     return;
                 }
 
-                const newNode = Object.assign({}, node, { specifiers: newSpecifiers });
+                const newNode = Object.assign({}, node, {specifiers: newSpecifiers});
                 let newCode = generate(newNode, {}).code;
                 if (multilines) newCode = formatMultilineImport(newCode);
                 changes.push({
@@ -324,7 +323,7 @@ function removeExportSpecifier(ast, name) {
 
             // case function
             if (node.declaration && 'FunctionDeclaration' === node.declaration.type) {
-                if(name === _.get(node.declaration, 'id.name')) {
+                if (name === _.get(node.declaration, 'id.name')) {
                     changes.push({
                         start: node.start,
                         end: node.end,
@@ -337,7 +336,7 @@ function removeExportSpecifier(ast, name) {
             // case const
             if (node.declaration) {
                 _.forEach(node.declaration.declarations, (declaration) => {
-                    if(name === _.get(declaration, 'id.name')) {
+                    if (name === _.get(declaration, 'id.name')) {
                         changes.push({
                             start: node.start,
                             end: node.end,
@@ -345,6 +344,7 @@ function removeExportSpecifier(ast, name) {
                         });
                     }
                 });
+
                 return;
             }
         }
@@ -353,9 +353,68 @@ function removeExportSpecifier(ast, name) {
     return changes;
 }
 
+function sortImports(ast) {
+    let changes = [];
+
+    let imports = [];
+    traverse(ast, {
+        ImportDeclaration(path) {
+            const node = path.node;
+
+            const newNode = Object.assign({}, node, {specifiers: node.specifiers});
+
+            imports.push({
+                code: generate(newNode, {}).code,
+                value: node.source.value,
+            });
+
+            // remember start and end
+            changes.push({
+                start: node.start,
+                end: node.end,
+                replacement: "" // replace with return @see return state below
+            });
+        },
+    });
+
+    const relativeImports = [];
+    const nonRelativeImports = [];
+    imports.map((v) => {
+        '.' !== v.value.charAt(0) ? nonRelativeImports.push(v) : relativeImports.push(v);
+    });
+
+    const nonRelativeSortedImports = _.orderBy(nonRelativeImports, ['value'], ['asc']);
+
+    const relativeSortedImports = relativeImports.sort((a, b) => {
+        const countRelative = (v) => {
+            return v.split('./').length - 1;
+        };
+
+        if (countRelative(a.value) > countRelative(b.value)) {
+            return 1;
+        }
+
+        if (countRelative(a.value) < countRelative(b.value)) {
+            return -1;
+        }
+
+        return 0;
+    });
+
+    const sortedImports = [...nonRelativeSortedImports, ...relativeSortedImports];
+    return changes.map((c, i) => {
+        return {
+            ...c,
+            replacement: sortedImports[i].code
+        }
+    });
+}
+
+
 module.exports = {
     addImportFrom: common.acceptFilePathForAst(addImportFrom),
     addExportFrom: common.acceptFilePathForAst(addExportFrom),
     removeImportSpecifier: common.acceptFilePathForAst(removeImportSpecifier),
     removeExportSpecifier: common.acceptFilePathForAst(removeExportSpecifier),
+    sortImport: common.acceptFilePathForAst(sortImports),
 };

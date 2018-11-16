@@ -47,6 +47,10 @@ function add({feature, name, type, withSaga}) {
         refactor.addImportFrom(ast, `${CONSTANTS.PACKAGE_NAME}/api/${type}/reducer`,  reducer),
         refactor.addImportFrom(ast, `../constants`, '', [constantName, constantStateKeyName]),
     ));
+    // must seperate from above for ast updated before sort.
+    refactor.updateFile(targetPath, ast => [].concat(
+        refactor.sortImport(ast),
+    ));
 
     refactor.success(`Reducer: "${reducerName}" created in "${targetPath}"`);
 }

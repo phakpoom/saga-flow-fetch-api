@@ -34,6 +34,10 @@ function add({feature, name, type}) {
         refactor.addImportFrom(ast, `${CONSTANTS.PACKAGE_NAME}/api/${type}/action`, '', [actionCreator]),
         refactor.addImportFrom(ast, `./constants`, '', [constantName])
     ));
+    // must seperate from above for ast updated before sort.
+    refactor.updateFile(targetPath, ast => [].concat(
+        refactor.sortImport(ast),
+    ));
 
     refactor.success(`Action: "${actionName}" created in "${targetPath}"`);
 }

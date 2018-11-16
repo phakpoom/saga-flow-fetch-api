@@ -1,5 +1,4 @@
 /* eslint-disable */
-const _ = require('lodash');
 const fs = require('fs');
 const refactor = require('../cli/refactor');
 
@@ -24,6 +23,7 @@ function walkSync(dir, filelist, needle) {
             }
         }
     });
+
     return filelist;
 }
 
@@ -32,4 +32,21 @@ module.exports = {
     walkSync
 };
 
-require('./src/cli').test();
+(() => {
+    before(function (){
+        global.__TEST__ = true;
+    });
+
+    describe('Command line tools', () => {
+        describe('Refactor function', () => {
+            require('./src/cli/refactor').test();
+        });
+        describe('Core function', () => {
+            require('./src/cli/core').test();
+        });
+        describe('Manager function', () => {
+            require('./src/cli/manager').test();
+        });
+    });
+})();
+

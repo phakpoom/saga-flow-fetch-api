@@ -1,5 +1,5 @@
-import { take, select, fork } from 'redux-saga/effects';
 import { doRequest } from 'react-native-core/api/request/saga';
+import { take, select, fork } from 'redux-saga/effects';
 import { FETCH_PAGES, FETCH_PAGES_STATE_KEY } from '../constants';
 import { fetchPages } from '../actions';
 
