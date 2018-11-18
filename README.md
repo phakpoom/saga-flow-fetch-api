@@ -4,7 +4,7 @@
   Generate saga flow for fetching api use for https://github.com/intbizth/react-native-core
 
 ## CLI Usage
-`$ node node_modules/react-native-core/bin/cli --help`
+`$ node node_modules/saga-flow-fetch-api/bin/cli --help`
 
 ## Testing
 `$ yarn run test`
